@@ -106,18 +106,18 @@ if st.session_state.mode_selection and st.button("Search"):
 
         # Affichage des résultats
         if len(matches) >= 15:
-            st.warning("⚠️ Too many results. Please refine your search.")  # Trop de résultats
-        elif not matches.empty:
-            st.success(f"✅ {len(matches)} file(s) found:")  # Résultats trouvés
-            for index, row in matches.iterrows():  # Parcours les lignes trouvées
-                filename = row.get("FileName", "Nom inconnu")
-                link = row.get("LinkSharepoint", "#")
-                path = row.get("PathSharepoint", "Chemin inconnu")
+            matches_unique = matches.drop_duplicates(subset=["FileName", "LinkSharepoint", "PathSharepoint"])
+    
+    st.success(f"✅ {len(matches_unique)} unique file(s) found:")  # Résultats trouvés uniques
+    for index, row in matches_unique.iterrows():  # Parcours les lignes uniques
+        filename = row.get("FileName", "Nom inconnu")
+        link = row.get("LinkSharepoint", "#")
+        path = row.get("PathSharepoint", "Chemin inconnu")
 
-                # Affiche les résultats
-                st.markdown(f"**{filename}**")
-                st.markdown(f"- 🔗 [Microsoft Link]({link})")
-                st.markdown(f"- 📁 SharePoint Path: `{path}`")
-                st.markdown("---")
-        else:
-            st.error("❌ No file found. Please try a different term.")  # Aucun résultat
+        # Affiche les résultats
+        st.markdown(f"**{filename}**")
+        st.markdown(f"- 🔗 [Microsoft Link]({link})")
+        st.markdown(f"- 📁 SharePoint Path: `{path}`")
+        st.markdown("---")
+else:
+    st.error("❌ No file found. Please try a different term.")  # Aucun résultat
