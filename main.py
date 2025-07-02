@@ -3,28 +3,39 @@ import pandas as pd     # Importe Pandas pour lire et manipuler des fichiers Exc
 import re               # Importe 're' pour utiliser des expressions régulières (utile pour extraire un ID depuis une URL)
 from azure.storage.blob import BlobServiceClient  # Permet de se connecter au stockage Azure
 from io import BytesIO  # Permet de lire un fichier téléchargé directement depuis la mémoire (sans l’enregistrer sur le disque)
+import os
 
 # Cette fonction charge et fusionne tous les fichiers Excel présents dans le conteneur Azure
 @st.cache_data  # Évite de recharger les fichiers à chaque fois que l’utilisateur interagit avec l’interface
 def load_data():
-    connect_str = st.secrets["AZURE_STORAGE_CONNECTION_STRING"]  # Récupère la chaîne de connexion Azure depuis les secrets
-    container_name = st.secrets["AZURE_CONTAINER_NAME"]          # Récupère le nom du conteneur Azure depuis les secrets
+    connect_str = os.getenv("AZURE_STORAGE_CONNECTION_STRING")  # Récupère la chaîne de connexion Azure depuis les variables d'environnement
+    container_name = os.getenv("AZURE_CONTAINER_NAME")          # Récupère le nom du conteneur Azure depuis les variables d'environnement
 
-    blob_service_client = BlobServiceClient.from_connection_string(connect_str)  # Initialise le client Azure Blob
-    container_client = blob_service_client.get_container_client(container_name)  # Accède au conteneur spécifié
+    if not connect_str:
+        st.error("La variable d'environnement AZURE_STORAGE_CONNECTION_STRING n'est pas définie.")
+        return pd.DataFrame()  # Retourne un DataFrame vide pour éviter les erreurs
 
-    all_dfs = []  # Liste qui va contenir tous les fichiers Excel
+    if not container_name:
+        st.error("La variable d'environnement AZURE_CONTAINER_NAME n'est pas définie.")
+        return pd.DataFrame()
 
-    # Parcours tous les fichiers présents dans le conteneur Azure
+    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+    container_client = blob_service_client.get_container_client(container_name)
+
+    all_dfs = []
     for blob in container_client.list_blobs():
-        if blob.name.endswith(".xlsx"):  # Garde uniquement les fichiers Excel
-            blob_client = container_client.get_blob_client(blob)  # Crée un client pour accéder à ce fichier
-            stream = blob_client.download_blob()  # Télécharge le fichier
-            df = pd.read_excel(BytesIO(stream.readall()))  # Lit le contenu du fichier dans un DataFrame
-            all_dfs.append(df)  # Ajoute le DataFrame à la liste
+        if blob.name.endswith(".xlsx"):
+            blob_client = container_client.get_blob_client(blob)
+            stream = blob_client.download_blob()
+            df = pd.read_excel(BytesIO(stream.readall()))
+            all_dfs.append(df)
 
-    final_df = pd.concat(all_dfs, ignore_index=True)  # Fusionne tous les fichiers en un seul tableau
-    return final_df  # Retourne le tableau final
+    if all_dfs:
+        final_df = pd.concat(all_dfs, ignore_index=True)
+    else:
+        final_df = pd.DataFrame()
+
+    return final_df
 
 df = load_data()  # Charge les données au lancement de l’application
 
