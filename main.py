@@ -3,7 +3,7 @@ import pandas as pd     # Importe Pandas pour lire et manipuler des fichiers Exc
 import re               # Importe 're' pour utiliser des expressions régulières (utile pour extraire un ID depuis une URL)
 from azure.storage.blob import BlobServiceClient  # Permet de se connecter au stockage Azure
 from io import BytesIO  # Permet de lire un fichier téléchargé directement depuis la mémoire (sans l’enregistrer sur le disque)
-import os
+import os 
 
 # Cette fonction charge et fusionne tous les fichiers Excel présents dans le conteneur Azure
 @st.cache_data
