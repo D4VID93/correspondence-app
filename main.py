@@ -3,39 +3,28 @@ import pandas as pd     # Importe Pandas pour lire et manipuler des fichiers Exc
 import re               # Importe 're' pour utiliser des expressions régulières (utile pour extraire un ID depuis une URL)
 from azure.storage.blob import BlobServiceClient  # Permet de se connecter au stockage Azure
 from io import BytesIO  # Permet de lire un fichier téléchargé directement depuis la mémoire (sans l’enregistrer sur le disque)
-import os
 
 # Cette fonction charge et fusionne tous les fichiers Excel présents dans le conteneur Azure
 @st.cache_data  # Évite de recharger les fichiers à chaque fois que l’utilisateur interagit avec l’interface
 def load_data():
-    connect_str = os.getenv("AZURE_STORAGE_CONNECTION_STRING")  # Récupère la chaîne de connexion Azure depuis les variables d'environnement
-    container_name = os.getenv("AZURE_CONTAINER_NAME")          # Récupère le nom du conteneur Azure depuis les variables d'environnement
+    connect_str = st.secrets["AZURE_STORAGE_CONNECTION_STRING"]  # Récupère la chaîne de connexion Azure depuis les secrets
+    container_name = st.secrets["AZURE_CONTAINER_NAME"]          # Récupère le nom du conteneur Azure depuis les secrets
 
-    if not connect_str:
-        st.error("La variable d'environnement AZURE_STORAGE_CONNECTION_STRING n'est pas définie.")
-        return pd.DataFrame()  # Retourne un DataFrame vide pour éviter les erreurs
+    blob_service_client = BlobServiceClient.from_connection_string(connect_str)  # Initialise le client Azure Blob
+    container_client = blob_service_client.get_container_client(container_name)  # Accède au conteneur spécifié
 
-    if not container_name:
-        st.error("La variable d'environnement AZURE_CONTAINER_NAME n'est pas définie.")
-        return pd.DataFrame()
+    all_dfs = []  # Liste qui va contenir tous les fichiers Excel
 
-    blob_service_client = BlobServiceClient.from_connection_string(connect_str)
-    container_client = blob_service_client.get_container_client(container_name)
-
-    all_dfs = []
+    # Parcours tous les fichiers présents dans le conteneur Azure
     for blob in container_client.list_blobs():
-        if blob.name.endswith(".xlsx"):
-            blob_client = container_client.get_blob_client(blob)
-            stream = blob_client.download_blob()
-            df = pd.read_excel(BytesIO(stream.readall()))
-            all_dfs.append(df)
+        if blob.name.endswith(".xlsx"):  # Garde uniquement les fichiers Excel
+            blob_client = container_client.get_blob_client(blob)  # Crée un client pour accéder à ce fichier
+            stream = blob_client.download_blob()  # Télécharge le fichier
+            df = pd.read_excel(BytesIO(stream.readall()))  # Lit le contenu du fichier dans un DataFrame
+            all_dfs.append(df)  # Ajoute le DataFrame à la liste
 
-    if all_dfs:
-        final_df = pd.concat(all_dfs, ignore_index=True)
-    else:
-        final_df = pd.DataFrame()
-
-    return final_df
+    final_df = pd.concat(all_dfs, ignore_index=True)  # Fusionne tous les fichiers en un seul tableau
+    return final_df  # Retourne le tableau final
 
 df = load_data()  # Charge les données au lancement de l’application
 
@@ -64,7 +53,7 @@ col1, col2, col3 = st.columns(3)
 with col1:
     st.button("🔍 Name File", on_click=select_mode, args=("name",))  # Recherche par nom
 with col2:
-    st.button("🔗 Google Link", on_click=select_mode, args=("link",))  # Recherche par lien Google
+    st.button("🔗 Google File", on_click=select_mode, args=("link",))  # Recherche par lien Google
 with col3:
     st.button("🆔 ID File", on_click=select_mode, args=("id",))  # Recherche par ID
 
@@ -108,15 +97,12 @@ if st.session_state.mode_selection and st.button("Search"):
         if len(matches) >= 15:
             st.warning("⚠️ Too many results. Please refine your search.")  # Trop de résultats
         elif not matches.empty:
-            # Supprimer les doublons selon les colonnes clés
-            matches_unique = matches.drop_duplicates(subset=["FileName", "LinkSharepoint", "PathSharepoint"])
-            
-            st.success(f"✅ {len(matches_unique)} unique file(s) found:")  # Résultats trouvés uniques
-            for index, row in matches_unique.iterrows():  # Parcours les lignes uniques
+            st.success(f"✅ {len(matches)} file(s) found:")  # Résultats trouvés
+            for index, row in matches.iterrows():  # Parcours les lignes trouvées
                 filename = row.get("FileName", "Nom inconnu")
                 link = row.get("LinkSharepoint", "#")
                 path = row.get("PathSharepoint", "Chemin inconnu")
-        
+
                 # Affiche les résultats
                 st.markdown(f"**{filename}**")
                 st.markdown(f"- 🔗 [Microsoft Link]({link})")
