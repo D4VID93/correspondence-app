@@ -64,7 +64,7 @@ col1, col2, col3 = st.columns(3)
 with col1:
     st.button("🔍 Name File", on_click=select_mode, args=("name",))  # Recherche par nom
 with col2:
-    st.button("🔗 Google File", on_click=select_mode, args=("link",))  # Recherche par lien Google
+    st.button("🔗 Google Link", on_click=select_mode, args=("link",))  # Recherche par lien Google
 with col3:
     st.button("🆔 ID File", on_click=select_mode, args=("id",))  # Recherche par ID
 
