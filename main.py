@@ -7,8 +7,8 @@ from io import BytesIO  # Permet de lire un fichier téléchargé directement de
 # Cette fonction charge et fusionne tous les fichiers Excel présents dans le conteneur Azure
 @st.cache_data  # Évite de recharger les fichiers à chaque fois que l’utilisateur interagit avec l’interface
 def load_data():
-    connect_str = st.secrets["AZURE_STORAGE_CONNECTION_STRING"]  # Récupère la chaîne de connexion Azure depuis les secrets
-    container_name = st.secrets["AZURE_CONTAINER_NAME"]          # Récupère le nom du conteneur Azure depuis les secrets
+    connect_str = os.getenv("AZURE_STORAGE_CONNECTION_STRING")  # Récupère la chaîne de connexion Azure depuis les secrets
+    container_name = os.getenv("AZURE_CONTAINER_NAME")           # Récupère le nom du conteneur Azure depuis les secrets
 
     blob_service_client = BlobServiceClient.from_connection_string(connect_str)  # Initialise le client Azure Blob
     container_client = blob_service_client.get_container_client(container_name)  # Accède au conteneur spécifié
