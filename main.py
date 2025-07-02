@@ -34,7 +34,7 @@ def load_data():
     else:
         final_df = pd.DataFrame()
 
-    return final_df
+return final_df
 
 
 df = load_data()  # Charge les données au lancement de l’application
