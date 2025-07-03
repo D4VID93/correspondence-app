@@ -133,3 +133,11 @@ if st.session_state.mode_selection and st.button("Search"):
                 st.markdown("---")
         else:
             st.error("❌ No file found. Please try a different term.")
+
+if st.checkbox("Show debug information"):
+    st.subheader("Debug Information")
+    st.write(f"Total records in database: {len(df)}")
+    st.write("Sample records:")
+    st.write(df.head(3)) # premières lignes du DataFrame
+    st.write("Columns available:") 
+    st.write(list(df.columns)) # liste les colonnes disponibles pour vérifier la compatibilité avec le code
