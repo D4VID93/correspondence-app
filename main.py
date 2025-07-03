@@ -105,6 +105,7 @@ if st.session_state.mode_selection and st.button("Search"):
             search_series = df[column_to_search].astype(str).str.lower()  # Colonne de recherche
             matches = df[search_series.str.contains(user_input_clean, na=False)]  # Recherche normale
 
+        matches = matches.drop_duplicates(subset=["FileName", "LinkSharepoint", "PathSharepoint"])
         # Affichage des résultats
         if len(matches) >= 15:
             st.warning("⚠️ Too many results. Please refine your search.")  # Trop de résultats
