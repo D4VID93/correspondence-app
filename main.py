@@ -75,7 +75,7 @@ col1, col2, col3 = st.columns(3)
 with col1:
     st.button("🔍 Name File", on_click=select_mode, args=("name",))
 with col2:
-    st.button("🔗 Google Link !", on_click=select_mode, args=("link",))
+    st.button("🔗 Google Link", on_click=select_mode, args=("link",))
 with col3:
     st.button("🆔 ID File", on_click=select_mode, args=("id",))
 
@@ -107,10 +107,14 @@ if st.session_state.mode_selection and st.button("Search"):
                     st.markdown("- The file isn't in the correspondence table")
                     st.markdown("- The Google Drive link might be incorrect")
                     st.markdown("- The file might have a different ID format")
+                    st.markdown("👉 If you're unable to locate your file, please contact a member of the IT team for assistance.")
+
                     
             else:
                 matches = pd.DataFrame()
                 st.error("❌ Could not extract a valid Google Drive ID from the provided link")
+                st.markdown("👉 If you're unable to locate your file, please contact a member of the IT team for assistance.")
+
 
         else:
             search_series = df[column_to_search].astype(str).str.lower()
