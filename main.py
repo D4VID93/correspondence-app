@@ -75,7 +75,7 @@ col1, col2, col3 = st.columns(3)
 with col1:
     st.button("🔍 Name File", on_click=select_mode, args=("name",))
 with col2:
-    st.button("🔗 Google Link !!", on_click=select_mode, args=("link",))
+    st.button("🔗 Google Link !", on_click=select_mode, args=("link",))
 with col3:
     st.button("🆔 ID File", on_click=select_mode, args=("id",))
 
@@ -97,10 +97,21 @@ if st.session_state.mode_selection and st.button("Search"):
         if st.session_state.mode_selection == "link":
             extracted_id = extract_google_file_id(user_input_clean)
             if extracted_id:
+                st.info(f"ℹ️ Extracted Google ID: {extracted_id}")
                 search_series = df["PathGoogle"].astype(str).str.lower()
                 matches = df[search_series.str.contains(extracted_id, na=False)]
+                if matches.empty:
+                    st.error(f"❌ No matching file found for ID: {extracted_id}")
+                    st.markdown("**Possible reasons:**")
+                    st.markdown("- The file hasn't been migrated to SharePoint yet")
+                    st.markdown("- The file isn't in the correspondence table")
+                    st.markdown("- The Google Drive link might be incorrect")
+                    st.markdown("- The file might have a different ID format")
+                    
             else:
                 matches = pd.DataFrame()
+                st.error("❌ Could not extract a valid Google Drive ID from the provided link")
+
         else:
             search_series = df[column_to_search].astype(str).str.lower()
             matches = df[search_series.str.contains(user_input_clean, na=False)]
