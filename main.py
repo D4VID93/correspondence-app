@@ -38,10 +38,13 @@ def load_data():
 def extract_google_file_id(link):
     # Patterns pour différents types de liens Google
     patterns = [
-        r"/d/([a-zA-Z0-9_-]+)",  # Standard /d/ID
-        r"/folders/([a-zA-Z0-9_-]+)",  # Dossiers Drive
-        r"id=([a-zA-Z0-9_-]+)",  # Format ?id=ID
-        r"open\?id=([a-zA-Z0-9_-]+)"  # Format open?id=ID
+        r"/d/([a-zA-Z0-9_-]+)",      # Standard /d/ID
+        r"/folders/([a-zA-Z0-9_-]+)", # Dossiers Drive
+        r"id=([a-zA-Z0-9_-]+)",       # Format ?id=ID
+        r"open\?id=([a-zA-Z0-9_-]+)", # Format open?id=ID
+        r"spreadsheets/d/([a-zA-Z0-9_-]+)", # Google Sheets
+        r"presentation/d/([a-zA-Z0-9_-]+)",  # Google Slides
+        r"document/d/([a-zA-Z0-9_-]+)"       # Google Docs
     ]
     
     for pattern in patterns:
@@ -72,7 +75,7 @@ col1, col2, col3 = st.columns(3)
 with col1:
     st.button("🔍 Name File", on_click=select_mode, args=("name",))
 with col2:
-    st.button("🔗 Google Link !", on_click=select_mode, args=("link",))
+    st.button("🔗 Google Link !!", on_click=select_mode, args=("link",))
 with col3:
     st.button("🆔 ID File", on_click=select_mode, args=("id",))
 
