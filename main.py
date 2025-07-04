@@ -104,16 +104,16 @@ if st.session_state.mode_selection and st.button("Search"):
                     st.error(f"❌ No matching file found for ID: {extracted_id}")
                     st.markdown("**Possible reasons:**")
                     st.markdown("- The file hasn't been migrated to SharePoint yet")
-                    st.markdown("- The file isn't in the correspondence table")
                     st.markdown("- The Google Drive link might be incorrect")
-                    st.markdown("- The file might have a different ID format")
-                    st.markdown("👉 If you're unable to locate your file, please contact a member of the IT team for assistance.")
+                    st.markdown("- The link is a link to a folder and not to a file")
+                    st.markdown("- The name of your file contains an accent")
+                    st.markdown("👉 In those cases, please contact Basile or Rachid for assistance. ")
 
                     
             else:
                 matches = pd.DataFrame()
                 st.error("❌ Could not extract a valid Google Drive ID from the provided link")
-                st.markdown("👉 If you're unable to locate your file, please contact a member of the IT team for assistance.")
+                st.markdown("👉 If you're unable to locate your file, please contact Basile or Rachid for assistance.")
 
 
         else:
@@ -137,11 +137,3 @@ if st.session_state.mode_selection and st.button("Search"):
                 st.markdown("---")
         else:
             st.error("❌ No file found. Please try a different term.")
-
-if st.checkbox("Show debug information"):
-    st.subheader("Debug Information")
-    st.write(f"Total records in database: {len(df)}")
-    st.write("Sample records:")
-    st.write(df.head(3)) # premières lignes du DataFrame
-    st.write("Columns available:") 
-    st.write(list(df.columns)) # liste les colonnes disponibles pour vérifier la compatibilité avec le code
