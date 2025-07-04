@@ -58,7 +58,7 @@ df = load_data()
 st.title("Correspondence Table")
 st.markdown(
     "Please select a method to search for the new SharePoint link of your file. "
-    "You can search by Name, ID, or Google Path.",
+    "You can search by Name, ID, or Google Link.",
     unsafe_allow_html=True
 )
 
